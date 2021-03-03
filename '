@@ -7,7 +7,7 @@ const connection = mysql.createConnection({
     // Your MySQL username
     user: 'root',
     // Your MySQL password
-    password: 'root1234',
+    password: '',
     database: 'employee_db'
 });
 
@@ -200,42 +200,11 @@ class Query {
                 validate: fname => {
                     if (fname) return true;
 
-                    console.log('Please enter employee\'s last name');
+                    console.log('Please enter employee\'s first name');
                     return false;
                 }
-            },
-            {
-                type: 'input',
-                name: 'roleId',
-                message: 'What is employee\'s role id? (required)',
-                validate: roleId => {
-                    if (!roleId || isNaN(roleId)) {
-                        console.log('\nPlese enter a valid role id');
-                        return false;
-                    };
-
-                    return true;
-                }
-            },
-            {
-                type: 'input',
-                name: 'managerId',
-                message: 'What is employee\'s manager id?',
             }
-        ])
-        .then(({ fname, lname, roleId, managerId }) => {
-            this.addEmployee(fname, lname, roleId, managerId)
-        });
-    };
-
-    addEmployee(fname, lname, roleId, managerId) {
-        if (managerId) {
-            connection
-            .then(conn => conn.query(`INSERT INTO employee(first_name, last_name, role_id, manager_id) VALUES('${fname}', '${lname}', '${roleId}', '${managerId}')`));
-        } else {
-            connection
-            .then(conn => conn.query(`INSERT INTO employee(first_name, last_name, role_id) VALUES('${fname}', '${lname}', '${roleId}')`));
-        };
+        ]);
     };
 };
 
