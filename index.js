@@ -7,7 +7,7 @@ const connection = mysql.createConnection({
     // Your MySQL username
     user: 'root',
     // Your MySQL password
-    password: '',
+    password: 'root1234',
     database: 'employee_db'
 });
 
@@ -33,7 +33,7 @@ class Query {
                 this.viewEmployees();
                 break;
             case 'Add a Department':
-                this.addDepartment();
+                this.promptDepartment();
                 break;
             case 'Add a Role':
                 this.addRole();
@@ -81,22 +81,50 @@ class Query {
         });
     };
 
-    viewDepartments() {
+    showTable(tableName) {
         connection
-        .then(conn => conn.query('SELECT * FROM department'))
-        .then(([rows]) => {
-            console.log(rows);
+        .then(conn => conn.query(`SELECT * FROM ${tableName}`))
+        .then(([ rows ]) => {
+            console.table(rows);
             this.prompt();
         });
     };
 
+    viewDepartments() {
+        this.showTable('department');
+    };
+
     viewRoles() {
-        connection
-        .then(conn => conn.query('SELECT * FROM role'))
-        .then(([rows]) => {
-            console.log(rows);
-            this.prompt();
+        this.showTable('role');
+    };
+
+    viewEmployees() {
+        this.showTable('employee');
+    };
+
+    promptDepartment() {
+        inquirer.prompt([
+            {
+                type: 'input',
+                name: 'name',
+                message: 'Please enter department\'s name? (required)',
+                validate: name => {
+                    if (name) return true;
+
+                    console.log('\nPlease enter department\'s name');
+                    return true;
+                }
+            }
+        ])
+        .then(({ name }) => {
+            this.addDepartment(name);
         });
+    };
+
+    addDepartment(name) {
+        connection
+        .then(conn => conn.query(`INSERT INTO department(name) VALUES ('${name}')`))
+        .then(res => console.log(res));
     };
 };
 
