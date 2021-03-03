@@ -7,7 +7,7 @@ const connection = mysql.createConnection({
     // Your MySQL username
     user: 'root',
     // Your MySQL password
-    password: 'root1234',
+    password: '',
     database: 'employee_db'
 });
 
@@ -36,7 +36,7 @@ class Query {
                 this.promptDepartment();
                 break;
             case 'Add a Role':
-                this.addRole();
+                this.promptRole();
                 break;
             case 'Add an Employee':
                 this.addEmployee();
@@ -123,8 +123,61 @@ class Query {
 
     addDepartment(name) {
         connection
-        .then(conn => conn.query(`INSERT INTO department(name) VALUES ('${name}')`))
-        .then(res => console.log(res));
+        .then(conn => conn.query(`INSERT INTO department(name) VALUES ('${name}')`));
+    };
+
+    promptRole() {
+        inquirer.prompt([
+            {
+                type: 'input',
+                name: 'title',
+                message: 'Please enter role title. (required)',
+                validate: title => {
+                    if (title) return true;
+
+                    console.log('please enter a title');
+                    return false;
+                }
+            },
+            {
+                type: 'input',
+                name: 'salary',
+                message: 'Please enter role\'s salary. (required)',
+                validate: salary => {
+                    if (!salary || isNaN(salary)) {
+                        console.log('please enter a valid salary');
+                        return false;
+                    };
+
+                    return true;
+                }
+            },
+            {
+                type: 'input',
+                name: 'dep_id',
+                message: 'Please enter the departmeent\'s id associated with the role',
+                vlaidate: dep_id => {
+                    if (!dep_id || isNaN(dep_id)) {
+                        console.log('please enter a valid department id');
+                        return false;
+                    };
+
+                    return true;
+                }
+            }
+        ])
+        .then(({ title, salary, dep_id }) => this.addRole(title, salary, dep_id));
+    };
+
+    addRole(title, salary, departmentId) {
+        connection
+        .then(conn => conn.query(`INSERT INTO role(title, salary, department_id) VALUES('${title}', '${+salary}', '${departmentId}')`))
+        .then(() => this.showTable('role'))
+        .catch(err => {
+            console.log(err.sqlMessage);
+            console.log('Please Try Again!');
+            this.promptRole();
+        });
     };
 };
 
