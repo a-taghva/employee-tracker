@@ -1,5 +1,5 @@
 const inquirer = require('inquirer');
-const mysql = require('mysql2');
+const mysql = require('mysql2/promise');
 
 const connection = mysql.createConnection({
     host: 'localhost',
@@ -14,10 +14,9 @@ const connection = mysql.createConnection({
 
 class Query {
     startQuery() {
-        connection.connect(err => {
-            if (err) throw err;
+        connection.then(conn => {
+            console.log(`Connected as ${conn.threadId}`);
 
-            console.log(`Connected as id ${connection.threadId}`);
             this.prompt();
         });
     };
@@ -83,16 +82,14 @@ class Query {
     };
 
     viewDepartments() {
-        const query = connection.query(
-            'SELECT * FROM department',
-            (err, res) => {
-                if (err) throw err;
-
-                console.log(res);
-            }
-        );
-
-        this.prompt();
+        connection
+        .then(conn => {
+            return conn.query('SELECT * FROM department')
+        })
+        .then(([rows]) => {
+            console.log(rows);
+            this.prompt();
+        });
     };
 };
 
