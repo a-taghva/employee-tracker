@@ -83,9 +83,16 @@ class Query {
 
     viewDepartments() {
         connection
-        .then(conn => {
-            return conn.query('SELECT * FROM department')
-        })
+        .then(conn => conn.query('SELECT * FROM department'))
+        .then(([rows]) => {
+            console.log(rows);
+            this.prompt();
+        });
+    };
+
+    viewRoles() {
+        connection
+        .then(conn => conn.query('SELECT * FROM role'))
         .then(([rows]) => {
             console.log(rows);
             this.prompt();
