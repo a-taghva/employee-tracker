@@ -256,56 +256,86 @@ class Query {
         };
     };
 
-    // async getEmployeeNames() {
-    //     connection
-    //     .then(conn => conn.query("SELECT CONCAT(first_name, ' ', last_name) AS 'employeeName' FROM employee"))
-    //     .then(([ names ]) => {
-    //         const namesArr = [];
-    //         for (const name of names) {
-    //             namesArr.push(name.employeeName);
-    //         };
-    //         console.log(namesArr);
-    //         return namesArr;
-    //     });
-    // };
+    getEmployeeNames() {
+        return new Promise((resolve, reject) => {
+            connection
+            .then(conn => conn.query("SELECT CONCAT(first_name, ' ', last_name) AS 'employeeName' FROM employee"))
+            .then(([ names ]) => {
+                const namesArr = [];
+                for (const name of names) {
+                    namesArr.push(name.employeeName);
+                };
 
-    // async getRoles() {
-    //     connection
-    //     .then(conn => conn.query("SELECT title FROM role"))
-    //     .then(([ roles ]) => {
-    //         const rolesArr = [];
-    //         for (const role of roles) {
-    //             rolesArr.push(role.title);
-    //         };
+                resolve(namesArr);
+            });
+        });
+    };
 
-            // return rolesArr;
-        // });
-    // };
+    getRoles() {
+        return new Promise((resolve, reject) => {
+            connection
+            .then(conn => conn.query("SELECT title FROM role"))
+            .then(([ roles ]) => {
+                const rolesArr = [];
+                for (const role of roles) {
+                    rolesArr.push(role.title);
+                };
 
-    // updateEmployeeRole() {
-    //     this.getEmployeeNames().then(names => console.log(names));
-    //     // console.log(names, roles);
+                resolve(rolesArr);
+            });
+        });
+    };
 
-        // // this.updateEmployeePrompt(names, roles);
-    // };
+    updateEmployeeRole() {
 
-    // updateEmployeePrompt(names, roles) {
-    //     inquirer.prompt([
-    //         {
-    //             type: 'list',
-    //             name: 'name',
-    //             message: 'Choose employee you want to update:',
-    //             choices: names
-    //         },
-    //         {
-    //             type: 'list',
-    //             name: 'role',
-    //             message: 'Choose role you want to update to: ',
-    //             choices: roles
-    //         }
-    //     ])
-    //     .then(data => console.log(data));
-    // };
+        let names, roles;
+        // this.getEmployeeNames().then(n => names = n);
+        // this.getRoles().then(r => names = r);
+
+        this.getEmployeeNames()
+        .then(n => {
+            names = n;
+            this.getRoles()
+            .then(r => {
+                roles = r
+                this.updateEmployeePrompt(names, roles);
+            });
+        });
+    };
+
+    updateEmployeePrompt(names, roles) {
+        inquirer.prompt([
+            {
+                type: 'list',
+                name: 'name',
+                message: 'Choose employee you want to update:',
+                choices: names
+            },
+            {
+                type: 'list',
+                name: 'role',
+                message: 'Choose role you want to update to: ',
+                choices: roles
+            }
+        ])
+        .then(data => {
+            let employeeName = data.name;
+            connection
+                .then(conn => conn.query(`SELECT id FROM role WHERE title LIKE "${data.role}"`))
+                .then(([ id ]) => {
+                    this.updateEmployee(employeeName, id[0].id);
+                });
+        });
+    };
+
+    updateEmployee(name, roleId) {
+        connection
+        .then(conn => conn.query(`UPDATE employee SET role_id = ${roleId} WHERE CONCAT(first_name, " ", last_name) LIKE "${name}"`))
+        .then(() => {
+            console.log('Successfully Updated!')
+            this.prompt();
+        });
+    };
 
     quit() {
         console.log('Thank You!');
