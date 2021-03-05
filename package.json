@@ -18,6 +18,8 @@
   },
   "homepage": "https://github.com/a-taghva/employee-tracker#readme",
   "dependencies": {
+    "chalk": "^4.1.0",
+    "colors": "^1.4.0",
     "console.table": "^0.10.0",
     "inquirer": "^8.0.0",
     "mysql2": "^2.2.5"

@@ -1,5 +1,7 @@
 const inquirer = require('inquirer');
 const mysql = require('mysql2/promise');
+const chalk = require('chalk');
+const cTable = require('console.table');
 
 const connection = mysql.createConnection({
     host: 'localhost',
@@ -11,12 +13,38 @@ const connection = mysql.createConnection({
     database: 'employee_db'
 });
 
-
 class Query {
     startQuery() {
         console.clear();
         connection.then(conn => {
-            console.log(`Connected as ${conn.threadId}`);
+
+            console.log(chalk.blue(`
+                                     ___                                           
+                                    (   )                                          
+    .--.    ___ .-. .-.      .-..    | |    .--.    ___  ___    .--.     .--.      
+   /    \\  (   )   '   \\    /    \\   | |   /    \\  (   )(   )  /    \\   /    \\     
+  |  .-. ;  |  .-.  .-. ;  ' .-,  ;  | |  |  .-. ;  | |  | |  |  .-. ; |  .-. ;    
+  |  | | |  | |  | |  | |  | |  . |  | |  | |  | |  | |  | |  |  | | | |  | | |    
+  |  |/  |  | |  | |  | |  | |  | |  | |  | |  | |  | '  | |  |  |/  | |  |/  |    
+  |  ' _.'  | |  | |  | |  | |  | |  | |  | |  | |  '  \`-' |  |  ' _.' |  ' _.'    
+  |  .'.-.  | |  | |  | |  | |  ' |  | |  | '  | |   \`.__. |  |  .'.-. |  .'.-.    
+  '  \`-' /  | |  | |  | |  | \`-'  '  | |  '  \`-' /   ___ | |  '  \`-' / '  \`-' /    
+   \`.__.'  (___)(___)(___) | \\__.'  (___)  \`.__.'   (   )' |   \`.__.'   \`.__.'     
+   ___                     | |              ___      ; \`-' '                  ___  
+  (   )                   (___)            (   )      .__.'                  (   ) 
+   | |_      ___ .-.      .---.    .--.     | |   ___     .--.    ___ .-.     | |  
+  (   __)   (   )   \\    / .-, \\  /    \\    | |  (   )   /    \\  (   )   \\    | |  
+   | |       | ' .-. ;  (__) ; | |  .-. ;   | |  ' /    |  .-. ;  | ' .-. ;   | |  
+   | | ___   |  / (___)   .'\`  | |  |(___)  | |,' /     |  | | |  |  / (___)  | |  
+   | |(   )  | |         / .'| | |  |       | .  '.     |  |/  |  | |         | |  
+   | | | |   | |        | /  | | |  | ___   | | \`. \\    |  ' _.'  | |         | |  
+   | ' | |   | |        ; |  ; | |  '(   )  | |   \\ \\   |  .'.-.  | |         |_|  
+   ' \`-' ;   | |        ' \`-'  | '  \`-' |   | |    \\ .  '  \`-' /  | |         .-.  
+    \`.__.   (___)       \`.__.'_.  \`.__,'   (___ ) (___)  \`.__.'  (___)       (___) 
+            `));
+
+
+            console.log(chalk.bgBlue.whiteBright(`\t Connected as ${conn.threadId} \t\n`));
 
             this.prompt();
         });
@@ -78,7 +106,9 @@ class Query {
         connection
         .then(conn => conn.query(`SELECT * FROM ${tableName}`))
         .then(([ rows ]) => {
+            console.log('\n');
             console.table(rows);
+            console.log('\n');
             this.prompt();
         });
     };
@@ -104,8 +134,8 @@ class Query {
                 validate: name => {
                     if (name) return true;
 
-                    console.log('\nPlease enter department\'s name');
-                    return true;
+                    console.log(chalk.bgRedBright.whiteBright('\n\n Please enter department\'s name \n'));
+                    return false;
                 }
             }
         ])
@@ -118,7 +148,7 @@ class Query {
         connection
         .then(conn => conn.query(`INSERT INTO department(name) VALUES ('${name}')`))
         .then(() => {
-            console.log(`${name} has been added to the database!`);
+            console.log(chalk.bgGreen.whiteBright(`\n ${name} has been added to the database! \n`));
             this.prompt();
         });
     };
@@ -132,7 +162,7 @@ class Query {
                 validate: title => {
                     if (title) return true;
 
-                    console.log('please enter a title');
+                    console.log(chalk.bgRedBright.whiteBright(' please enter a title \n'));
                     return false;
                 }
             },
@@ -142,7 +172,7 @@ class Query {
                 message: 'Please enter role\'s salary. (required)',
                 validate: salary => {
                     if (!salary || isNaN(salary)) {
-                        console.log('please enter a valid salary');
+                        console.log(chalk.bgRedBright.whiteBright(' please enter a valid salary \n'));
                         return false;
                     };
 
@@ -155,7 +185,7 @@ class Query {
                 message: 'Please enter the departmeent\'s id associated with the role:',
                 vlaidate: dep_id => {
                     if (!dep_id || isNaN(dep_id)) {
-                        console.log('please enter a valid department id!');
+                        console.log(chalk.bgRedBright.whiteBright(' please enter a valid department id! \n'));
                         return false;
                     };
 
@@ -170,12 +200,12 @@ class Query {
         connection
         .then(conn => conn.query(`INSERT INTO role(title, salary, department_id) VALUES('${title}', '${+salary}', '${departmentId}')`))
         .then(() => {
-            console.log(`Role has been added!`);
+            console.log(chalk.bgGreen.whiteBright(`\n Role has been added! \n`));
             this.showTable('role')
         })
         .catch(err => {
-            console.log('Not a valid department ID!');
-            console.log('Please Try Again!');
+            console.log(chalk.bgRedBright.whiteBright(' Not a valid department ID! \n'));
+            console.log(chalk.bgRedBright.whiteBright(' Please Try Again! \n'));
             this.promptRole();
         });
     };
@@ -189,7 +219,7 @@ class Query {
                 validate: fname => {
                     if (fname) return true;
 
-                    console.log('Please enter employee\'s first name');
+                    console.log(chalk.bgRedBright.whiteBright(' Please enter employee\'s first name \n'));
                     return false;
                 }
             },
@@ -200,7 +230,7 @@ class Query {
                 validate: fname => {
                     if (fname) return true;
 
-                    console.log('Please enter employee\'s last name');
+                    console.log(chalk.bgRedBright.whiteBright(' Please enter employee\'s last name \n'));
                     return false;
                 }
             },
@@ -210,7 +240,7 @@ class Query {
                 message: 'What is employee\'s role id? (required)',
                 validate: roleId => {
                     if (!roleId || isNaN(roleId)) {
-                        console.log('\nPlese enter a valid role id');
+                        console.log(chalk.bgRedBright.whiteBright(' \nPlese enter a valid role id \n'));
                         return false;
                     };
 
@@ -233,24 +263,24 @@ class Query {
             connection
             .then(conn => conn.query(`INSERT INTO employee(first_name, last_name, role_id, manager_id) VALUES('${fname}', '${lname}', '${roleId}', '${managerId}')`))
             .then(() => {
-                console.log('Employee has been added!')
+                console.log(chalk.bgGreen.whiteBright('\n Employee has been added! \n'));
                 this.prompt();
             })
             .catch(() => {
-                console.log('Not a valid role id!');
-                console.log('Please Try again!');
+                console.log(chalk.bgRedBright.whiteBright(' Not a valid role id! '));
+                console.log(chalk.bgRedBright.whiteBright(' Please Try again! \n'));
                 this.promptEmployee();
             });
         } else {
             connection
             .then(conn => conn.query(`INSERT INTO employee(first_name, last_name, role_id) VALUES('${fname}', '${lname}', '${roleId}')`))
             .then(() => {
-                console.log('Employee has been added!')
+                console.log(chalk.bgGreen.whiteBright('\n Employee has been added! \n'));
                 this.prompt();
             })
             .catch((err) => {
-                console.log('Not a valid role id!');
-                console.log('Please Try again!');
+                console.log(chalk.bgRedBright.whiteBright(' Not a valid role id! '));
+                console.log(chalk.bgRedBright.whiteBright(' Please Try again! \n'));
                 this.promptEmployee();
             });
         };
@@ -332,13 +362,13 @@ class Query {
         connection
         .then(conn => conn.query(`UPDATE employee SET role_id = ${roleId} WHERE CONCAT(first_name, " ", last_name) LIKE "${name}"`))
         .then(() => {
-            console.log('Successfully Updated!')
+            console.log(chalk.bgGreen.whiteBright('\nSuccessfully Updated!\n'));
             this.prompt();
         });
     };
 
     quit() {
-        console.log('Thank You!');
+        console.log(chalk.bgGreen.whiteBright('\n Thank You! \n'));
         connection.then(conn => conn.destroy());
     };
 };
