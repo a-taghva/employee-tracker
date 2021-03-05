@@ -14,6 +14,7 @@ const connection = mysql.createConnection({
 
 class Query {
     startQuery() {
+        console.clear();
         connection.then(conn => {
             console.log(`Connected as ${conn.threadId}`);
 
@@ -46,9 +47,6 @@ class Query {
                 break;
             case 'Update Employee Role':
                 this.updateEmployeeRole();
-                break;
-            case 'Remove Role':
-                this.removeRole();
                 break;
             case 'Quit':
                 this.quit();
@@ -236,6 +234,62 @@ class Query {
             connection
             .then(conn => conn.query(`INSERT INTO employee(first_name, last_name, role_id) VALUES('${fname}', '${lname}', '${roleId}')`));
         };
+    };
+
+    async getEmployeeNames() {
+        connection
+        .then(conn => conn.query("SELECT CONCAT(first_name, ' ', last_name) AS 'employeeName' FROM employee"))
+        .then(([ names ]) => {
+            const namesArr = [];
+            for (const name of names) {
+                namesArr.push(name.employeeName);
+            };
+            console.log(namesArr);
+            return namesArr;
+        });
+    };
+
+    async getRoles() {
+        connection
+        .then(conn => conn.query("SELECT title FROM role"))
+        .then(([ roles ]) => {
+            const rolesArr = [];
+            for (const role of roles) {
+                rolesArr.push(role.title);
+            };
+
+            return rolesArr;
+        });
+    };
+
+    updateEmployeeRole() {
+        this.getEmployeeNames().then(names => console.log(names));
+        // console.log(names, roles);
+
+        // this.updateEmployeePrompt(names, roles);
+    };
+
+    updateEmployeePrompt(names, roles) {
+        inquirer.prompt([
+            {
+                type: 'list',
+                name: 'name',
+                message: 'Choose employee you want to update:',
+                choices: names
+            },
+            {
+                type: 'list',
+                name: 'role',
+                message: 'Choose role you want to update to: ',
+                choices: roles
+            }
+        ])
+        .then(data => console.log(data));
+    };
+
+    quit() {
+        console.log('Thank You!');
+        connection.then(conn => conn.destroy());
     };
 };
 
