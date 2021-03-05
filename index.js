@@ -42,9 +42,6 @@ class Query {
             case 'Add an Employee':
                 this.promptEmployee();
                 break;
-            case 'Add Employee Role:':
-                this.addEmployeeRole();
-                break;
             case 'Update Employee Role':
                 this.updateEmployeeRole();
                 break;
@@ -67,9 +64,7 @@ class Query {
                     'Add a Department',
                     'Add a Role',
                     'Add an Employee',
-                    'Add Employee Role',
                     'Update Employee Role',
-                    'Remove Role',
                     'Quit',
                 ]
             }
@@ -121,7 +116,11 @@ class Query {
 
     addDepartment(name) {
         connection
-        .then(conn => conn.query(`INSERT INTO department(name) VALUES ('${name}')`));
+        .then(conn => conn.query(`INSERT INTO department(name) VALUES ('${name}')`))
+        .then(() => {
+            console.log(`${name} has been added to the database!`);
+            this.prompt();
+        });
     };
 
     promptRole() {
@@ -153,10 +152,10 @@ class Query {
             {
                 type: 'input',
                 name: 'dep_id',
-                message: 'Please enter the departmeent\'s id associated with the role',
+                message: 'Please enter the departmeent\'s id associated with the role:',
                 vlaidate: dep_id => {
                     if (!dep_id || isNaN(dep_id)) {
-                        console.log('please enter a valid department id');
+                        console.log('please enter a valid department id!');
                         return false;
                     };
 
@@ -170,9 +169,12 @@ class Query {
     addRole(title, salary, departmentId) {
         connection
         .then(conn => conn.query(`INSERT INTO role(title, salary, department_id) VALUES('${title}', '${+salary}', '${departmentId}')`))
-        .then(() => this.showTable('role'))
+        .then(() => {
+            console.log(`Role has been added!`);
+            this.showTable('role')
+        })
         .catch(err => {
-            console.log(err.sqlMessage);
+            console.log('Not a valid department ID!');
             console.log('Please Try Again!');
             this.promptRole();
         });
@@ -229,63 +231,81 @@ class Query {
     addEmployee(fname, lname, roleId, managerId) {
         if (managerId) {
             connection
-            .then(conn => conn.query(`INSERT INTO employee(first_name, last_name, role_id, manager_id) VALUES('${fname}', '${lname}', '${roleId}', '${managerId}')`));
+            .then(conn => conn.query(`INSERT INTO employee(first_name, last_name, role_id, manager_id) VALUES('${fname}', '${lname}', '${roleId}', '${managerId}')`))
+            .then(() => {
+                console.log('Employee has been added!')
+                this.prompt();
+            })
+            .catch(() => {
+                console.log('Not a valid role id!');
+                console.log('Please Try again!');
+                this.promptEmployee();
+            });
         } else {
             connection
-            .then(conn => conn.query(`INSERT INTO employee(first_name, last_name, role_id) VALUES('${fname}', '${lname}', '${roleId}')`));
+            .then(conn => conn.query(`INSERT INTO employee(first_name, last_name, role_id) VALUES('${fname}', '${lname}', '${roleId}')`))
+            .then(() => {
+                console.log('Employee has been added!')
+                this.prompt();
+            })
+            .catch((err) => {
+                console.log('Not a valid role id!');
+                console.log('Please Try again!');
+                this.promptEmployee();
+            });
         };
     };
 
-    async getEmployeeNames() {
-        connection
-        .then(conn => conn.query("SELECT CONCAT(first_name, ' ', last_name) AS 'employeeName' FROM employee"))
-        .then(([ names ]) => {
-            const namesArr = [];
-            for (const name of names) {
-                namesArr.push(name.employeeName);
-            };
-            console.log(namesArr);
-            return namesArr;
-        });
-    };
+    // async getEmployeeNames() {
+    //     connection
+    //     .then(conn => conn.query("SELECT CONCAT(first_name, ' ', last_name) AS 'employeeName' FROM employee"))
+    //     .then(([ names ]) => {
+    //         const namesArr = [];
+    //         for (const name of names) {
+    //             namesArr.push(name.employeeName);
+    //         };
+    //         console.log(namesArr);
+    //         return namesArr;
+    //     });
+    // };
 
-    async getRoles() {
-        connection
-        .then(conn => conn.query("SELECT title FROM role"))
-        .then(([ roles ]) => {
-            const rolesArr = [];
-            for (const role of roles) {
-                rolesArr.push(role.title);
-            };
+    // async getRoles() {
+    //     connection
+    //     .then(conn => conn.query("SELECT title FROM role"))
+    //     .then(([ roles ]) => {
+    //         const rolesArr = [];
+    //         for (const role of roles) {
+    //             rolesArr.push(role.title);
+    //         };
 
-            return rolesArr;
-        });
-    };
+            // return rolesArr;
+        // });
+    // };
 
-    updateEmployeeRole() {
-        this.getEmployeeNames().then(names => console.log(names));
-        // console.log(names, roles);
+    // updateEmployeeRole() {
+    //     this.getEmployeeNames().then(names => console.log(names));
+    //     // console.log(names, roles);
 
-        // this.updateEmployeePrompt(names, roles);
-    };
+        // // this.updateEmployeePrompt(names, roles);
+    // };
 
-    updateEmployeePrompt(names, roles) {
-        inquirer.prompt([
-            {
-                type: 'list',
-                name: 'name',
-                message: 'Choose employee you want to update:',
-                choices: names
-            },
-            {
-                type: 'list',
-                name: 'role',
-                message: 'Choose role you want to update to: ',
-                choices: roles
-            }
-        ])
-        .then(data => console.log(data));
-    };
+    // updateEmployeePrompt(names, roles) {
+    //     inquirer.prompt([
+    //         {
+    //             type: 'list',
+    //             name: 'name',
+    //             message: 'Choose employee you want to update:',
+    //             choices: names
+    //         },
+    //         {
+    //             type: 'list',
+    //             name: 'role',
+    //             message: 'Choose role you want to update to: ',
+    //             choices: roles
+    //         }
+    //     ])
+    //     .then(data => console.log(data));
+    // };
 
     quit() {
         console.log('Thank You!');
