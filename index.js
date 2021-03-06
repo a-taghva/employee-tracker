@@ -148,8 +148,8 @@ class Query {
         connection
         .then(conn => conn.query(`INSERT INTO department(name) VALUES ('${name}')`))
         .then(() => {
-            console.log(chalk.bgGreen.whiteBright(`\n ${name} has been added to the database! \n`));
-            this.prompt();
+            console.log(chalk.bgGreen.whiteBright(`\n ${name} has been added to the database! `));
+            this.showTable('department');
         });
     };
 
@@ -200,7 +200,7 @@ class Query {
         connection
         .then(conn => conn.query(`INSERT INTO role(title, salary, department_id) VALUES('${title}', '${+salary}', '${departmentId}')`))
         .then(() => {
-            console.log(chalk.bgGreen.whiteBright(`\n Role has been added! \n`));
+            console.log(chalk.bgGreen.whiteBright(`\n Role has been added! `));
             this.showTable('role')
         })
         .catch(err => {
@@ -263,8 +263,8 @@ class Query {
             connection
             .then(conn => conn.query(`INSERT INTO employee(first_name, last_name, role_id, manager_id) VALUES('${fname}', '${lname}', '${roleId}', '${managerId}')`))
             .then(() => {
-                console.log(chalk.bgGreen.whiteBright('\n Employee has been added! \n'));
-                this.prompt();
+                console.log(chalk.bgGreen.whiteBright('\n Employee has been added! '));
+                this.showTable('employee');
             })
             .catch(() => {
                 console.log(chalk.bgRedBright.whiteBright(' Not a valid role id! '));
@@ -275,8 +275,8 @@ class Query {
             connection
             .then(conn => conn.query(`INSERT INTO employee(first_name, last_name, role_id) VALUES('${fname}', '${lname}', '${roleId}')`))
             .then(() => {
-                console.log(chalk.bgGreen.whiteBright('\n Employee has been added! \n'));
-                this.prompt();
+                console.log(chalk.bgGreen.whiteBright('\n Employee has been added! '));
+                this.showTable('employee');
             })
             .catch((err) => {
                 console.log(chalk.bgRedBright.whiteBright(' Not a valid role id! '));
@@ -317,10 +317,7 @@ class Query {
     };
 
     updateEmployeeRole() {
-
         let names, roles;
-        // this.getEmployeeNames().then(n => names = n);
-        // this.getRoles().then(r => names = r);
 
         this.getEmployeeNames()
         .then(n => {
@@ -363,7 +360,7 @@ class Query {
         .then(conn => conn.query(`UPDATE employee SET role_id = ${roleId} WHERE CONCAT(first_name, " ", last_name) LIKE "${name}"`))
         .then(() => {
             console.log(chalk.bgGreen.whiteBright('\nSuccessfully Updated!\n'));
-            this.prompt();
+            this.showTable('employee');
         });
     };
 
