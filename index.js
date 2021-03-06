@@ -107,7 +107,17 @@ class Query {
         .then(conn => conn.query(`SELECT * FROM ${tableName}`))
         .then(([ rows ]) => {
             console.log('\n');
-            console.table(rows);
+            switch (tableName) {
+                case 'department':
+                    console.table('Department', rows);
+                    break;
+                case 'role':
+                    console.table('Role', rows);
+                    break;
+                case 'employee':
+                    console.table('Employee', rows);
+                    break;
+            };
             console.log('\n');
             this.prompt();
         });
